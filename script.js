@@ -1,40 +1,25 @@
-
-function doi2pmid(doi) {
-
-  var url = "http://www.corsproxy.com/www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?tool=my_tool&email=my_email@example.com&ids="+doi+"&format=json";
-
-  var foo = $.getJSON( url, function( data ) {
-    for (i=0;i<data.records.length;i++) {
-      root_pmid = data.records[i].pmid;
-      return root_pmid;
-    }
-  })
-    .fail(function(error) {
-      console.log("Failed!", error);
-    });
-
-  
+function ajax(url, data) {
+  return new Promise(function (resolve, reject) {
+    $.getJSON(url, data)
+      .done(resolve)
+      .fail(reject);
+  });
 }
 
-doi = "10.1371/journal.ppat.1003211";
 
-foo = doi2pmid(doi);
+var get_pmid = ajax(
+  "http://www.corsproxy.com/www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?tool=my_tool&email=my_email@example.com&ids=10.1371/journal.ppat.1003211&format=json"
+);
 
-console.log(foo);
- 
 
-  /*
-reflist_url = "http://www.corsproxy.com/www.ebi.ac.uk/europepmc/webservices/rest/MED/"+root_pmid+"/references/1/json";
-  
-  var baz = $.getJSON( url_2, function( data ) {
-  for (i=0;i<data.referenceList.reference.length;i++) {
-    console.log(data.referenceList.reference[i].id);
-  }
-})
-  .fail(function() {
-    console.log( "error" );
-  });
-
- */
-
-  
+get_pmid.then(function (result) {
+  var pmid = result.records[0].pmid;
+  var get_refs = ajax(
+    "http://www.corsproxy.com/www.ebi.ac.uk/europepmc/webservices/rest/MED/"+pmid+"/references/1/json"
+  );
+  get_refs.then(function (result) {
+    for (i=0;i<result.referenceList.reference.length;i++) {
+      console.log(result.referenceList.reference[i].id);
+    }
+  });  
+});
