@@ -3,6 +3,23 @@ graph.nodes = [];
 graph.links = [];
 
 
+
+var width = 960,
+    height = 500;
+
+var color = d3.scale.category20();
+
+var force = d3.layout.force()
+    .charge(-120)
+    .linkDistance(30)
+    .size([width, height]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+
+
 function ajax(url, data) {
   return new Promise(function (resolve, reject) {
     $.getJSON(url, data)
@@ -24,7 +41,22 @@ var get_refs = function (result) {
 
 
 var draw_d3 = function () {
-  force
+  
+};
+
+
+get_pmid
+.then(get_refs)
+.then(function (result) {
+  result.referenceList.reference.forEach(function (reference, index) {
+    console.log(reference.id);
+    // console.log(index);
+    graph.nodes.push({"name":reference.id,"group":1});
+    graph.links.push({"source":index,"target":0,"value":1});
+  });
+})
+.then(function (){
+    force
       .nodes(graph.nodes)
       .links(graph.links)
       .start();
@@ -55,21 +87,7 @@ var draw_d3 = function () {
     node.attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
   });
-};
-
-
-get_pmid
-.then(get_refs)
-.then(function (result) {
-  result.referenceList.reference.forEach(function (reference, index) {
-    console.log(reference.id);
-    // console.log(index);
-    graph.nodes.push({"name":reference.id,"group":1});
-    graph.links.push({"source":index,"target":0,"value":1});
-
-  });
-})
-.then(draw_d3);
+});
 
 
 
